@@ -1,0 +1,840 @@
+# 🎮 خطة تنفيذ موقع Roblox Rewards — موجهة لـ AI Agent
+
+---
+
+## 🧭 نظرة عامة على المشروع
+
+**اسم المشروع:** منصة مكافآت روبلوكس العربية  
+**الجمهور المستهدف:** أطفال وشباب من 8–18 سنة (ناطقين بالعربية)  
+**اللغة:** العربية بالكامل (RTL — من اليمين لليسار)  
+**الهدف:** موقع ألعاب تفاعلي يكافئ المستخدمين على دعوة أصدقائهم ويتيح لهم سحب أرباحهم
+
+---
+
+## 📁 هيكل الملفات المطلوب
+
+```
+/project
+├── index.html                  # صفحة الدخول / التسجيل
+├── dashboard.html              # الصفحة الرئيسية
+├── invite.html                 # صفحة دعوة الأصدقاء
+├── levels.html                 # صفحة المستويات
+├── rewards.html                # صفحة المكافآت
+├── rare-items.html             # صفحة العناصر النادرة
+├── leaderboard.html            # صفحة المتصدرين
+├── earnings.html               # صفحة الأرباح ← جديد
+├── withdraw.html               # صفحة السحب ← جديد
+├── unlock-rewards.html         # صفحة فتح المكافآت المقفلة
+├── profile.html                # صفحة الملف الشخصي
+├── css/
+│   ├── main.css                # الأنماط العامة
+│   ├── rtl.css                 # دعم العربية RTL
+│   └── animations.css          # الحركات والتأثيرات
+├── js/
+│   ├── app.js                  # المنطق الرئيسي
+│   ├── auth.js                 # التسجيل والدخول
+│   ├── points.js               # نظام النقاط
+│   ├── invite.js               # نظام الدعوات
+│   ├── earnings.js             # نظام الأرباح
+│   └── withdraw.js             # نظام السحب
+└── assets/
+    ├── icons/
+    └── images/
+```
+
+---
+
+## 🎨 نظام التصميم (Design System)
+
+### الألوان
+```css
+:root {
+  --primary-red:     #E8253D;   /* أحمر روبلوكس */
+  --primary-dark:    #1A1A2E;   /* خلفية داكنة */
+  --accent-yellow:   #FFD700;   /* أصفر ذهبي للنقاط */
+  --accent-green:    #00C851;   /* أخضر للنجاح */
+  --accent-blue:     #007BFF;   /* أزرق للمعلومات */
+  --card-bg:         #FFFFFF;   /* بطاقات بيضاء */
+  --surface:         #F4F6FA;   /* خلفية رمادية فاتحة */
+  --text-primary:    #1A1A2E;
+  --text-secondary:  #6B7280;
+  --border-radius:   16px;
+  --border-radius-lg:24px;
+}
+```
+
+### الخطوط
+```css
+/* خط عربي مناسب للأطفال */
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+
+body {
+  font-family: 'Tajawal', sans-serif;
+  direction: rtl;
+  text-align: right;
+}
+```
+
+### مبادئ التصميم
+- زوايا مدورة كبيرة (`border-radius: 16px+`)
+- أزرار ضخمة (`min-height: 56px`)
+- أيقونات emoji كبيرة مع كل عنصر
+- تأثيرات hover مرحة (scale + shadow)
+- ألوان زاهية وصريحة
+- خط عريض وكبير للعناوين
+- مسافات سخية بين العناصر
+
+---
+
+## 📐 مكونات مشتركة (Shared Components)
+
+### شريط التنقل العلوي
+```html
+<!-- يجب أن يظهر في كل الصفحات -->
+<nav class="navbar">
+  <!-- يسار: رصيد النقاط -->
+  <div class="nav-points">⭐ 125,000 نقطة</div>
+
+  <!-- يمين: روابط التنقل -->
+  <ul class="nav-links">
+    <li><a href="dashboard.html">🏠 الرئيسية</a></li>
+    <li><a href="invite.html">👥 دعوة أصدقاء</a></li>
+    <li><a href="rewards.html">🎁 المكافآت</a></li>
+    <li><a href="rare-items.html">💎 عناصر نادرة</a></li>
+    <li><a href="leaderboard.html">🏆 المتصدرون</a></li>
+    <li><a href="earnings.html">💰 أرباحي</a></li>
+    <li><a href="profile.html">👤 حسابي</a></li>
+  </ul>
+</nav>
+```
+
+### بطاقة النقاط
+```html
+<div class="points-card">
+  <div class="points-icon">⭐</div>
+  <div class="points-value">125,000</div>
+  <div class="points-label">نقطة</div>
+</div>
+```
+
+### شريط التقدم
+```html
+<div class="progress-bar-wrapper">
+  <div class="progress-label">الهدف: 400 روبلكس</div>
+  <div class="progress-bar">
+    <div class="progress-fill" style="width: 62%"></div>
+  </div>
+  <div class="progress-text">125,000 / 200,000 نقطة</div>
+</div>
+```
+
+### بوب-أب المكافأة
+```html
+<div class="popup-overlay" id="rewardPopup">
+  <div class="popup-card">
+    <div class="popup-emoji">🎉</div>
+    <h2>مبروك!</h2>
+    <p>ربحت 25,000 نقطة!</p>
+    <button class="btn-primary">رائع! 🚀</button>
+  </div>
+</div>
+```
+
+---
+
+## 📄 تفاصيل كل صفحة
+
+---
+
+### صفحة 1: تسجيل الدخول / إنشاء حساب (`index.html`)
+
+**المحتوى:**
+- شعار الموقع بالعربية + أيقونة روبلوكس
+- تبديل بين تسجيل الدخول وإنشاء حساب
+- حقل الاسم (للتسجيل فقط)
+- حقل البريد الإلكتروني
+- حقل كلمة المرور
+- حقل كود الدعوة (اختياري)
+- زر كبير: "ادخل عالم المكافآت 🚀"
+- رسالة ترحيبية مرحة
+
+**المنطق:**
+```javascript
+// عند التسجيل الجديد:
+newUser.points = 100000; // مكافأة ترحيبية
+if (inviteCode) {
+  referrer.points += 25000; // مكافأة الداعي
+}
+```
+
+---
+
+### صفحة 2: الداشبورد (`dashboard.html`)
+
+**المحتوى:**
+
+```
+┌─────────────────────────────────────┐
+│  👋 أهلاً يا [اسم المستخدم]!        │
+│  🎮 المستوى 3                        │
+└─────────────────────────────────────┘
+
+┌──────────────┐  ┌──────────────┐
+│  ⭐ نقاطي    │  │ 💰 روبلكسي  │
+│  125,000     │  │  62,500      │
+└──────────────┘  └──────────────┘
+
+┌─────────────────────────────────────┐
+│  تقدمك نحو المكافأة القادمة         │
+│  الهدف: 400 روبلكس                  │
+│  ████████░░░░  125,000 / 200,000    │
+└─────────────────────────────────────┘
+
+         [ 👥 ادعُ أصدقاءك الآن! ]
+
+┌──────────┐ ┌──────────┐ ┌──────────┐
+│ 🤝 دعوات│ │🏅مستواك  │ │⭐نقاطك  │
+│    12    │ │   3      │ │ 125,000  │
+└──────────┘ └──────────┘ └──────────┘
+
+[🎁 مكافأتك اليومية — اضغط هنا!]
+```
+
+---
+
+### صفحة 3: دعوة الأصدقاء (`invite.html`)
+
+**المحتوى:**
+
+```
+🎯 ادعُ أصدقاءك واربح نقاطاً!
+
+┌─────────────────────────────────────┐
+│  رابط دعوتك الخاص:                  │
+│  site.com/ref/USERNAME              │
+│  [ 📋 نسخ ] [ 📤 مشاركة ]           │
+└─────────────────────────────────────┘
+
+📊 إحصائياتك:
+- 👥 الأصدقاء المدعوون: 12
+- ⭐ النقاط من الدعوات: 300,000
+
+تقدمك نحو الهدف القادم:
+████████░░  12 / 25 دعوة → 1,000,000 نقطة
+```
+
+---
+
+### صفحة 4: المستويات (`levels.html`)
+
+**المحتوى:**
+
+بطاقة لكل مستوى:
+```
+┌─────────────────────────────────────┐
+│  🥉 المستوى 1 ✅ مكتمل              │
+│  1 دعوة → 25,000 نقطة              │
+│  🏅 شارة: أول خطوة                  │
+└─────────────────────────────────────┘
+
+┌─────────────────────────────────────┐
+│  🥈 المستوى 2 ✅ مكتمل              │
+│  5 دعوات → 100,000 نقطة            │
+└─────────────────────────────────────┘
+
+┌─────────────────────────────────────┐
+│  🔒 المستوى 4                       │
+│  25 دعوة → 1,000,000 نقطة         │
+│  متبقي: 13 دعوة                    │
+└─────────────────────────────────────┘
+```
+
+---
+
+### صفحة 5: المكافآت (`rewards.html`)
+
+**بطاقة المكافأة:**
+```html
+<div class="reward-card">
+  <img src="robux-400.png" alt="400 روبلكس">
+  <h3>400 روبلكس 🎮</h3>
+  <div class="points-cost">💰 100,000 نقطة</div>
+  <button class="btn-redeem">استبدل الآن!</button>
+</div>
+```
+
+**المكافآت:**
+- 400 روبلكس — 100,000 نقطة
+- 800 روبلكس — 200,000 نقطة
+- 1700 روبلكس — 400,000 نقطة
+
+---
+
+### صفحة 6: العناصر النادرة (`rare-items.html`)
+
+**بطاقة العنصر:**
+```html
+<div class="rare-item-card">
+  <div class="item-image">🎩</div>
+  <h3>قبعة Dominus</h3>
+  <div class="unlock-requirement">
+    🔓 يفتح بعد 20 دعوة
+  </div>
+  <div class="progress-mini">8/20</div>
+</div>
+```
+
+---
+
+### صفحة 7: المتصدرون (`leaderboard.html`)
+
+```html
+<div class="leaderboard-table">
+  <div class="leaderboard-row gold">
+    <span class="rank">🥇 1</span>
+    <span class="username">Alex</span>
+    <span class="invites">120 دعوة</span>
+  </div>
+  <div class="leaderboard-row silver">
+    <span class="rank">🥈 2</span>
+    <span class="username">Omar</span>
+    <span class="invites">87 دعوة</span>
+  </div>
+</div>
+<div class="reset-timer">⏰ يعاد ترتيب القائمة خلال: 3 أيام</div>
+```
+
+---
+
+### صفحة 8: الأرباح (`earnings.html`) ← 🆕 الأهم
+
+**التصميم الكامل:**
+
+```
+💰 أرباحي
+
+┌─────────────────────────────────────┐
+│  معدل التحويل:                      │
+│  ⭐ 1,000 نقطة = 💵 500 روبلكس     │
+└─────────────────────────────────────┘
+
+┌──────────────────┐  ┌──────────────────┐
+│  ⭐ نقاطك        │  │  💰 روبلكسك      │
+│   125,000        │  │    62,500         │
+└──────────────────┘  └──────────────────┘
+
+      ↕ تحويل تلقائي
+
+┌─────────────────────────────────────┐
+│                                     │
+│   💵 رصيدك القابل للسحب:            │
+│                                     │
+│         62,500 روبلكس               │
+│                                     │
+│   [ 💸 اسحب أرباحك الآن! ]          │
+│                                     │
+└─────────────────────────────────────┘
+
+📋 سجل المعاملات:
+┌──────────────────────────────────────┐
+│ ✅ سحب  │ 10,000 روبلكس │ 12 يناير  │
+│ ⭐ كسب  │ 25,000 نقطة   │ 11 يناير  │
+│ 🤝 دعوة │ 25,000 نقطة   │ 10 يناير  │
+└──────────────────────────────────────┘
+```
+
+**JavaScript للتحويل:**
+```javascript
+function calculateRobux(points) {
+  return (points / 1000) * 500;
+}
+
+// عرض تلقائي
+const userPoints = 125000;
+const robuxBalance = calculateRobux(userPoints); // = 62,500
+document.getElementById('robux-balance').textContent = 
+  robuxBalance.toLocaleString('ar-EG') + ' روبلكس';
+```
+
+---
+
+### صفحة 9: السحب (`withdraw.html`) ← 🆕
+
+**الخطوة 1: اختيار طريقة الدفع**
+
+```html
+<h2>اختر طريقة الدفع</h2>
+<div class="payment-methods-grid">
+
+  <div class="payment-card" data-method="visa">
+    <div class="payment-icon">💳</div>
+    <div class="payment-name">فيزا / ماستركارد</div>
+  </div>
+
+  <div class="payment-card" data-method="vodafone">
+    <div class="payment-icon">📱</div>
+    <div class="payment-name">فودافون كاش</div>
+  </div>
+
+  <div class="payment-card" data-method="orange">
+    <div class="payment-icon">🟠</div>
+    <div class="payment-name">أورنج كاش</div>
+  </div>
+
+  <div class="payment-card" data-method="etisalat">
+    <div class="payment-icon">📡</div>
+    <div class="payment-name">اتصالات كاش (WE)</div>
+  </div>
+
+</div>
+```
+
+**الخطوة 2: فورم الكارت البنكي (للفيزا/ماستركارد)**
+
+```html
+<!-- كارت بصري تفاعلي -->
+<div class="card-visual" id="cardPreview">
+  <div class="card-front">
+    <div class="card-logo">💳</div>
+    <div class="card-number-display">•••• •••• •••• ••••</div>
+    <div class="card-bottom">
+      <div class="card-name-display">اسم حاملة الكارت</div>
+      <div class="card-expiry-display">MM/YY</div>
+    </div>
+  </div>
+  <div class="card-back">
+    <div class="card-stripe"></div>
+    <div class="card-cvc-display">•••</div>
+  </div>
+</div>
+
+<!-- فورم الإدخال -->
+<form class="card-form" id="cardForm">
+
+  <div class="form-group">
+    <label>رقم الكارت</label>
+    <input 
+      type="text" 
+      id="cardNumber"
+      placeholder="XXXX XXXX XXXX XXXX"
+      maxlength="19"
+      oninput="formatCardNumber(this)"
+    >
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>تاريخ الانتهاء</label>
+      <input 
+        type="text" 
+        id="cardExpiry"
+        placeholder="MM/YY"
+        maxlength="5"
+        oninput="formatExpiry(this)"
+      >
+    </div>
+    <div class="form-group">
+      <label>CVC</label>
+      <input 
+        type="password" 
+        id="cardCVC"
+        placeholder="•••"
+        maxlength="4"
+      >
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>اسم حامل الكارت</label>
+    <input 
+      type="text" 
+      id="cardName"
+      placeholder="الاسم كما هو مكتوب على الكارت"
+    >
+  </div>
+
+</form>
+```
+
+**JavaScript للكارت:**
+```javascript
+function formatCardNumber(input) {
+  let value = input.value.replace(/\D/g, '');
+  value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+  input.value = value;
+  // تحديث الكارت البصري
+  document.querySelector('.card-number-display').textContent = 
+    value || '•••• •••• •••• ••••';
+}
+
+function formatExpiry(input) {
+  let value = input.value.replace(/\D/g, '');
+  if (value.length >= 2) value = value.slice(0,2) + '/' + value.slice(2);
+  input.value = value;
+}
+
+// قلب الكارت عند كتابة CVC
+document.getElementById('cardCVC').addEventListener('focus', () => {
+  document.getElementById('cardPreview').classList.add('flipped');
+});
+document.getElementById('cardCVC').addEventListener('blur', () => {
+  document.getElementById('cardPreview').classList.remove('flipped');
+});
+```
+
+**فورم المحفظة الإلكترونية (للفودافون/أورنج/اتصالات):**
+```html
+<form class="wallet-form" id="walletForm">
+  <div class="form-group">
+    <label>رقم الموبايل</label>
+    <input 
+      type="tel" 
+      id="walletPhone"
+      placeholder="01X XXXX XXXX"
+      maxlength="11"
+    >
+  </div>
+  <div class="form-group">
+    <label>اسم صاحب المحفظة (اختياري)</label>
+    <input type="text" id="walletName" placeholder="الاسم">
+  </div>
+</form>
+```
+
+**الخطوة 3: تأكيد السحب**
+```html
+<div class="withdrawal-summary">
+  <h3>✅ تأكيد السحب</h3>
+  <div class="summary-row">
+    <span>طريقة الدفع:</span>
+    <span>💳 فيزا</span>
+  </div>
+  <div class="summary-row">
+    <span>المبلغ:</span>
+    <span>62,500 روبلكس</span>
+  </div>
+  <div class="summary-row">
+    <span>الكارت:</span>
+    <span>••••4521</span>
+  </div>
+  <button class="btn-confirm">
+    💸 اسحب الآن!
+  </button>
+</div>
+```
+
+---
+
+### صفحة 10: فتح المكافآت (`unlock-rewards.html`)
+
+```html
+<div class="locked-reward-card locked">
+  <div class="lock-overlay">🔒</div>
+  <img src="item.png" alt="مكافأة">
+  <h3>درع الأسطورة</h3>
+  <div class="requirement-badge">
+    📊 يتطلب المستوى 5
+  </div>
+  <div class="progress-mini">
+    <span>20 / 35 دعوة</span>
+  </div>
+</div>
+
+<div class="locked-reward-card unlocked">
+  <div class="unlock-badge">✅ مفتوح!</div>
+  <img src="item2.png" alt="مكافأة">
+  <h3>خوذة المحارب</h3>
+  <button class="btn-claim">استلم المكافأة!</button>
+</div>
+```
+
+---
+
+## 🗄️ قاعدة البيانات
+
+### الجداول الكاملة (SQL)
+
+```sql
+-- جدول المستخدمين
+CREATE TABLE users (
+  id              INTEGER PRIMARY KEY AUTOINCREMENT,
+  username        VARCHAR(50) UNIQUE NOT NULL,
+  email           VARCHAR(100) UNIQUE NOT NULL,
+  password_hash   VARCHAR(255) NOT NULL,
+  points          INTEGER DEFAULT 100000,
+  robux_balance   INTEGER DEFAULT 0,
+  invite_code     VARCHAR(20) UNIQUE NOT NULL,
+  invited_by      INTEGER REFERENCES users(id),
+  total_invites   INTEGER DEFAULT 0,
+  weekly_invites  INTEGER DEFAULT 0,
+  level           INTEGER DEFAULT 1,
+  is_verified     BOOLEAN DEFAULT FALSE,
+  registration_ip VARCHAR(45),
+  last_daily_reward DATE,
+  created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- جدول الدعوات
+CREATE TABLE invites (
+  id              INTEGER PRIMARY KEY AUTOINCREMENT,
+  referrer_id     INTEGER REFERENCES users(id),
+  invited_user_id INTEGER REFERENCES users(id),
+  created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- جدول المكافآت
+CREATE TABLE rewards (
+  id              INTEGER PRIMARY KEY AUTOINCREMENT,
+  reward_name     VARCHAR(100) NOT NULL,
+  reward_name_ar  VARCHAR(100) NOT NULL,
+  points_cost     INTEGER NOT NULL,
+  robux_value     INTEGER NOT NULL,
+  image_url       VARCHAR(255),
+  required_level  INTEGER DEFAULT 1,
+  is_locked       BOOLEAN DEFAULT FALSE,
+  description_ar  TEXT
+);
+
+-- جدول الاستبدالات
+CREATE TABLE redemptions (
+  id        INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id   INTEGER REFERENCES users(id),
+  reward_id INTEGER REFERENCES rewards(id),
+  status    ENUM('pending','completed','rejected') DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- جدول الشارات
+CREATE TABLE badges (
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  badge_name   VARCHAR(100),
+  badge_name_ar VARCHAR(100),
+  icon         VARCHAR(10),
+  description_ar TEXT,
+  required_invites INTEGER DEFAULT 0
+);
+
+-- جدول شارات المستخدمين
+CREATE TABLE user_badges (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id    INTEGER REFERENCES users(id),
+  badge_id   INTEGER REFERENCES badges(id),
+  awarded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- جدول السحوبات ← جديد
+CREATE TABLE withdrawals (
+  id                      INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id                 INTEGER REFERENCES users(id),
+  amount_robux            INTEGER NOT NULL,
+  payment_method          ENUM('visa','vodafone','orange','etisalat'),
+  payment_details_encrypted TEXT NOT NULL,
+  status                  ENUM('pending','processing','completed','rejected') DEFAULT 'pending',
+  rejection_reason        TEXT,
+  requested_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  processed_at            TIMESTAMP
+);
+
+-- جدول المعاملات ← جديد
+CREATE TABLE transactions (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id     INTEGER REFERENCES users(id),
+  type        ENUM('earn','spend','withdraw','invite_bonus','daily_reward'),
+  amount      INTEGER NOT NULL,
+  description VARCHAR(255),
+  created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+---
+
+## ⚙️ المنطق البرمجي الكامل
+
+### نظام النقاط
+```javascript
+const POINTS_CONFIG = {
+  registration_bonus: 100000,   // مكافأة التسجيل
+  invite_bonus: 25000,          // مكافأة كل دعوة
+  daily_reward: 5000,           // المكافأة اليومية
+  conversion_rate: 0.5          // 1000 نقطة = 500 روبلكس
+};
+
+function convertPointsToRobux(points) {
+  return Math.floor((points / 1000) * 500);
+}
+```
+
+### نظام المستويات
+```javascript
+const LEVELS = [
+  { level: 1,  invites_required: 0,   bonus_points: 0 },
+  { level: 2,  invites_required: 2,   bonus_points: 10000 },
+  { level: 3,  invites_required: 5,   bonus_points: 25000 },
+  { level: 4,  invites_required: 10,  bonus_points: 50000 },
+  { level: 5,  invites_required: 20,  bonus_points: 100000 },
+  { level: 6,  invites_required: 35,  bonus_points: 200000 },
+  { level: 7,  invites_required: 50,  bonus_points: 300000 },
+  { level: 8,  invites_required: 75,  bonus_points: 500000 },
+  { level: 9,  invites_required: 100, bonus_points: 750000 },
+  { level: 10, invites_required: 150, bonus_points: 1000000 }
+];
+
+function calculateLevel(total_invites) {
+  for (let i = LEVELS.length - 1; i >= 0; i--) {
+    if (total_invites >= LEVELS[i].invites_required) {
+      return LEVELS[i].level;
+    }
+  }
+  return 1;
+}
+```
+
+### نظام الشارات
+```javascript
+const BADGES = [
+  { id: 1, name_ar: 'أول خطوة',      icon: '🌟', invites: 1 },
+  { id: 2, name_ar: 'ناشط اجتماعي',  icon: '🤝', invites: 5 },
+  { id: 3, name_ar: 'داعية النجوم',   icon: '⭐', invites: 10 },
+  { id: 4, name_ar: 'أسطورة الدعوات', icon: '👑', invites: 25 },
+  { id: 5, name_ar: 'بطل المنصة',     icon: '🏆', invites: 50 }
+];
+```
+
+### نظام السحب
+```javascript
+const WITHDRAWAL_CONFIG = {
+  min_robux: 1000,           // الحد الأدنى للسحب
+  processing_days: '2-3',    // أيام المعالجة
+};
+
+function validateWithdrawal(userRobux, amount) {
+  if (amount < WITHDRAWAL_CONFIG.min_robux) {
+    return { valid: false, error: 'الحد الأدنى للسحب 1,000 روبلكس' };
+  }
+  if (amount > userRobux) {
+    return { valid: false, error: 'رصيدك غير كافٍ' };
+  }
+  return { valid: true };
+}
+```
+
+### الحماية من الاحتيال
+```javascript
+const SECURITY_RULES = {
+  max_accounts_per_ip: 2,
+  require_email_verification: true,
+  min_account_age_for_withdrawal: 7, // أيام
+  max_daily_withdrawals: 1
+};
+
+function checkAntiAbuse(ip, userId) {
+  // فحص عدد الحسابات من نفس الـ IP
+  // فحص التحقق من البريد الإلكتروني
+  // فحص عمر الحساب
+  // فحص الحد اليومي للسحب
+}
+```
+
+---
+
+## 🎯 نص البيانات الأولية (Seed Data)
+
+### الشارات
+```javascript
+const seedBadges = [
+  { name_ar: 'أول خطوة 🌟',        icon: '🌟', invites: 1 },
+  { name_ar: 'ناشط اجتماعي 🤝',    icon: '🤝', invites: 5 },
+  { name_ar: 'داعية النجوم ⭐',     icon: '⭐', invites: 10 },
+  { name_ar: 'أسطورة الدعوات 👑',   icon: '👑', invites: 25 },
+  { name_ar: 'بطل المنصة 🏆',       icon: '🏆', invites: 50 }
+];
+```
+
+### المكافآت
+```javascript
+const seedRewards = [
+  { name_ar: '400 روبلكس',  points: 100000, robux: 400,  level: 1 },
+  { name_ar: '800 روبلكس',  points: 200000, robux: 800,  level: 3 },
+  { name_ar: '1700 روبلكس', points: 400000, robux: 1700, level: 5 }
+];
+```
+
+---
+
+## 📱 دعم الموبايل (Responsive Design)
+
+```css
+/* موبايل أولاً */
+@media (max-width: 768px) {
+  .navbar { flex-direction: column; }
+  .nav-links { 
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 12px;
+  }
+  .card-visual { transform: scale(0.85); }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .payment-methods-grid { grid-template-columns: 1fr 1fr; }
+}
+```
+
+---
+
+## ✅ قائمة مهام التنفيذ (Checklist)
+
+### المرحلة 1: الهيكل الأساسي
+- [ ] إنشاء `main.css` مع نظام الألوان والخطوط
+- [ ] إنشاء `rtl.css` لدعم العربية
+- [ ] بناء شريط التنقل المشترك
+- [ ] صفحة الدخول/التسجيل
+
+### المرحلة 2: الصفحات الأساسية
+- [ ] الداشبورد مع النقاط والتقدم
+- [ ] صفحة دعوة الأصدقاء مع توليد الرابط
+- [ ] صفحة المستويات
+- [ ] صفحة المكافآت
+- [ ] صفحة العناصر النادرة
+- [ ] صفحة المتصدرين
+- [ ] صفحة الملف الشخصي
+
+### المرحلة 3: ميزة الأرباح ← الأولوية
+- [ ] صفحة الأرباح مع عرض التحويل
+- [ ] صفحة السحب — اختيار طريقة الدفع
+- [ ] فورم الكارت البنكي التفاعلي (مع تأثير القلب)
+- [ ] فورم المحفظة الإلكترونية
+- [ ] صفحة تأكيد السحب
+- [ ] سجل المعاملات
+
+### المرحلة 4: الألعاب والتحفيز
+- [ ] نظام المكافأة اليومية
+- [ ] البوب-أب الاحتفالي عند كسب النقاط
+- [ ] صفحة المكافآت المقفلة
+- [ ] نظام الشارات مع عرض بصري
+- [ ] تأثيرات confetti عند الإنجازات
+
+### المرحلة 5: الأمان والجودة
+- [ ] تشفير بيانات الدفع
+- [ ] التحقق من صحة المدخلات
+- [ ] الحماية من الاحتيال
+- [ ] اختبار الاستجابة على الموبايل
+- [ ] التحقق من صحة RTL في كل الصفحات
+
+---
+
+## 🚀 ملاحظات مهمة للـ AI Agent
+
+1. **الاتجاه:** كل الصفحات يجب أن تكون `dir="rtl"` و `lang="ar"`
+2. **الخط:** استخدم Tajawal من Google Fonts دائماً
+3. **الأيقونات:** استخدم emoji بدلاً من صور خارجية للسرعة
+4. **الكارت:** يجب أن يكون للكارت البنكي تأثير قلب 3D عند الضغط على حقل CVC
+5. **الأرقام:** اعرض الأرقام بالفاصلة `125,000` لا `125000`
+6. **الألوان:** لا تستخدم ألوان باردة أو رمادية كثيراً — الموقع للأطفال
+7. **الأزرار:** يجب أن يكون لكل زر hover effect واضح
+8. **التحقق:** أضف validation فورية للفورمات (لا تنتظر submit)
+9. **localStorage:** استخدمه لحفظ بيانات الجلسة في النسخة الأمامية
+10. **تدفق السحب:** step 1 → step 2 → step 3 بشكل واضح ومتدرج
+
+---
+
+*هذه الخطة شاملة وجاهزة للتنفيذ الفوري بواسطة AI Agent*

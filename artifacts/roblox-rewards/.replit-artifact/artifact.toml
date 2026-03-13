@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "منصة مكافآت روبلوكس"
+version = "1.0.0"
+id = "artifacts/roblox-rewards"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+localPort = 19105
+name = "web"
+paths = ["/"]
+
+[services.development]
+run = "pnpm --filter @workspace/roblox-rewards run dev"
+
+[services.env]
+PORT = "19105"
+BASE_PATH = "/"
+
+[services.production]
+build = ["pnpm", "--filter", "@workspace/roblox-rewards", "run", "build"]
+publicDir = "artifacts/roblox-rewards/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"

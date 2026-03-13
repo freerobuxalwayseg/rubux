@@ -1,0 +1,528 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: Roblox Rewards Platform API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: auth
+    description: Authentication operations
+  - name: users
+    description: User operations
+  - name: invites
+    description: Invite operations
+  - name: rewards
+    description: Rewards operations
+  - name: leaderboard
+    description: Leaderboard operations
+  - name: transactions
+    description: Transaction operations
+  - name: withdrawals
+    description: Withdrawal operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "200":
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /users/me:
+    get:
+      operationId: getCurrentUser
+      tags: [users]
+      summary: Get current user profile
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users/daily-reward:
+    post:
+      operationId: claimDailyReward
+      tags: [users]
+      summary: Claim daily reward
+      responses:
+        "200":
+          description: Daily reward claimed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyRewardResponse"
+        "400":
+          description: Already claimed today
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /invites/generate:
+    get:
+      operationId: getInviteInfo
+      tags: [invites]
+      summary: Get invite link and stats
+      responses:
+        "200":
+          description: Invite info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InviteInfo"
+
+  /rewards:
+    get:
+      operationId: getRewards
+      tags: [rewards]
+      summary: Get all rewards
+      responses:
+        "200":
+          description: List of rewards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Reward"
+
+  /rewards/redeem:
+    post:
+      operationId: redeemReward
+      tags: [rewards]
+      summary: Redeem a reward
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RedeemRequest"
+      responses:
+        "200":
+          description: Reward redeemed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          description: Insufficient points or not enough level
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /leaderboard:
+    get:
+      operationId: getLeaderboard
+      tags: [leaderboard]
+      summary: Get leaderboard
+      responses:
+        "200":
+          description: Leaderboard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaderboardResponse"
+
+  /transactions:
+    get:
+      operationId: getTransactions
+      tags: [transactions]
+      summary: Get user transactions
+      responses:
+        "200":
+          description: List of transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Transaction"
+
+  /withdrawals:
+    post:
+      operationId: createWithdrawal
+      tags: [withdrawals]
+      summary: Create withdrawal request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WithdrawalRequest"
+      responses:
+        "200":
+          description: Withdrawal created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    get:
+      operationId: getWithdrawals
+      tags: [withdrawals]
+      summary: Get user withdrawals
+      responses:
+        "200":
+          description: List of withdrawals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Withdrawal"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - success
+
+    RegisterRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        inviteCode:
+          type: string
+      required:
+        - username
+        - email
+        - password
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+      required:
+        - user
+        - token
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+        points:
+          type: integer
+        robuxBalance:
+          type: integer
+        inviteCode:
+          type: string
+        totalInvites:
+          type: integer
+        weeklyInvites:
+          type: integer
+        level:
+          type: integer
+        isVerified:
+          type: boolean
+        lastDailyReward:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+      required:
+        - id
+        - username
+        - email
+        - points
+        - robuxBalance
+        - inviteCode
+        - totalInvites
+        - weeklyInvites
+        - level
+        - isVerified
+
+    DailyRewardResponse:
+      type: object
+      properties:
+        pointsEarned:
+          type: integer
+        newTotal:
+          type: integer
+      required:
+        - pointsEarned
+        - newTotal
+
+    InviteInfo:
+      type: object
+      properties:
+        inviteCode:
+          type: string
+        inviteLink:
+          type: string
+        totalInvites:
+          type: integer
+        pointsFromInvites:
+          type: integer
+        nextMilestone:
+          type: integer
+          nullable: true
+        nextMilestonePoints:
+          type: integer
+          nullable: true
+      required:
+        - inviteCode
+        - inviteLink
+        - totalInvites
+        - pointsFromInvites
+
+    Reward:
+      type: object
+      properties:
+        id:
+          type: integer
+        nameAr:
+          type: string
+        pointsCost:
+          type: integer
+        robuxValue:
+          type: integer
+        requiredLevel:
+          type: integer
+        isLocked:
+          type: boolean
+        descriptionAr:
+          type: string
+          nullable: true
+      required:
+        - id
+        - nameAr
+        - pointsCost
+        - robuxValue
+        - requiredLevel
+        - isLocked
+
+    RedeemRequest:
+      type: object
+      properties:
+        rewardId:
+          type: integer
+      required:
+        - rewardId
+
+    LeaderboardEntry:
+      type: object
+      properties:
+        rank:
+          type: integer
+        username:
+          type: string
+        totalInvites:
+          type: integer
+        points:
+          type: integer
+      required:
+        - rank
+        - username
+        - totalInvites
+        - points
+
+    LeaderboardResponse:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/LeaderboardEntry"
+        resetInDays:
+          type: integer
+        currentUserRank:
+          type: integer
+          nullable: true
+      required:
+        - entries
+        - resetInDays
+
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          enum: [earn, spend, withdraw, invite_bonus, daily_reward]
+        amount:
+          type: integer
+        description:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - type
+        - amount
+        - description
+        - createdAt
+
+    WithdrawalRequest:
+      type: object
+      properties:
+        amountRobux:
+          type: integer
+        paymentMethod:
+          type: string
+          enum: [visa, vodafone, orange, etisalat]
+        paymentDetails:
+          type: string
+      required:
+        - amountRobux
+        - paymentMethod
+        - paymentDetails
+
+    Withdrawal:
+      type: object
+      properties:
+        id:
+          type: integer
+        amountRobux:
+          type: integer
+        paymentMethod:
+          type: string
+        status:
+          type: string
+          enum: [pending, processing, completed, rejected]
+        rejectionReason:
+          type: string
+          nullable: true
+        requestedAt:
+          type: string
+        processedAt:
+          type: string
+          nullable: true
+      required:
+        - id
+        - amountRobux
+        - paymentMethod
+        - status
+        - requestedAt

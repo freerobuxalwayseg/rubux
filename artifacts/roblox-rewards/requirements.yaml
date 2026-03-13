@@ -1,0 +1,35 @@
+packages:
+  "framer-motion": "Animations and page transitions for gaming feel"
+  "react-confetti": "Celebration effects for daily rewards and achievements"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility function to efficiently merge Tailwind CSS classes"
+  "lucide-react": "Beautiful consistent icons"
+  "date-fns": "For formatting transaction and withdrawal dates"
+  "react-hook-form": "For robust form state management in withdrawal and auth"
+  "@hookform/resolvers": "Zod validation resolver for forms"
+  "zod": "Schema validation for forms"
+
+images:
+  - path: "artifacts/roblox-rewards/public/images/hero-bg.png"
+    description: "Vibrant abstract gaming background with glowing red and gold particles on a dark navy canvas, energetic and fun"
+    aspect_ratio: "16:9"
+  - path: "artifacts/roblox-rewards/public/images/robux-coin.png"
+    description: "Shiny metallic green and gold 3D coin representing digital gaming currency, cartoon style, transparent background"
+    aspect_ratio: "1:1"
+  - path: "artifacts/roblox-rewards/public/images/points-star.png"
+    description: "Glowing 3D golden star icon, magical game asset, cartoon style, transparent background"
+    aspect_ratio: "1:1"
+  - path: "artifacts/roblox-rewards/public/images/dominus-hat.png"
+    description: "Epic dark hood with glowing red eyes and spiked pauldrons, legendary gaming item, 3D cartoon style"
+    aspect_ratio: "1:1"
+  - path: "artifacts/roblox-rewards/public/images/warrior-helmet.png"
+    description: "Shiny golden gladiator helmet with a red plume, epic gaming item, 3D cartoon style"
+    aspect_ratio: "1:1"
+  - path: "artifacts/roblox-rewards/public/images/legend-armor.png"
+    description: "Futuristic glowing neon red chest armor plate, mythical gaming item, 3D cartoon style"
+    aspect_ratio: "1:1"
+
+notes:
+  - JWT token is stored in localStorage as 'roblox_token'
+  - We use a global fetch interceptor in App.tsx to automatically inject the Authorization Bearer header into all /api requests
+  - Arabic RTL layout is enforced globally on the main wrapper
